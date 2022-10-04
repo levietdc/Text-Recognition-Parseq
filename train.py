@@ -25,6 +25,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint, StochasticWeightAveragi
 from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.strategies import DDPStrategy
 from pytorch_lightning.utilities.model_summary import summarize
+from strhub.models.utils import load_from_checkpoint
+
 
 from strhub.data.module import SceneTextDataModule
 from strhub.models.base import BaseSystem
@@ -63,6 +65,8 @@ def main(config: DictConfig):
         model: BaseSystem = hydra.utils.instantiate(config.model)
     print(summarize(model, max_depth=1 if model.hparams.name.startswith('parseq') else 2))
 
+    
+
     datamodule: SceneTextDataModule = hydra.utils.instantiate(config.data)
 
     checkpoint = ModelCheckpoint(monitor='val_accuracy', mode='max', save_top_k=3, save_last=True,
@@ -78,3 +82,4 @@ def main(config: DictConfig):
 
 if __name__ == '__main__':
     main()
+    

@@ -55,7 +55,7 @@ class LmdbDataset(Dataset):
     """
 
     def __init__(self, root: str, charset: str, max_label_len: int, min_image_dim: int = 0,
-                 remove_whitespace: bool = True, normalize_unicode: bool = True,
+                 remove_whitespace: bool = False, normalize_unicode: bool = True,
                  unlabelled: bool = False, transform: Optional[Callable] = None):
         self._env = None
         self.root = root
@@ -84,16 +84,19 @@ class LmdbDataset(Dataset):
     def _preprocess_labels(self, charset, remove_whitespace, normalize_unicode, max_label_len, min_image_dim):
         charset_adapter = CharsetAdapter(charset)
         with self._create_env() as env, env.begin() as txn:
-            num_samples = int(txn.get('num-samples'.encode()))
+            num_samples = int(txn.get('num-samples'.encode())) - 1
             if self.unlabelled:
                 return num_samples
             for index in range(num_samples):
                 index += 1  # lmdb starts with 1
                 label_key = f'label-{index:09d}'.encode()
+                #print('----- label key: ', label_key)
                 label = txn.get(label_key).decode()
+                #print('----- label before: ', label)
                 # Normally, whitespace is removed from the labels.
                 if remove_whitespace:
-                    label = ''.join(label.split())
+                    #label = ''.join(label.split())
+                    pass
                 # Normalize unicode composites (if any) and convert to compatible ASCII characters
                 if normalize_unicode:
                     label = unicodedata.normalize('NFKD', label).encode('ascii', 'ignore').decode()
@@ -112,6 +115,7 @@ class LmdbDataset(Dataset):
                     if w < self.min_image_dim or h < self.min_image_dim:
                         continue
                 self.labels.append(label)
+                #print('---- label after ', label)
                 self.filtered_index_list.append(index)
         return len(self.labels)
 

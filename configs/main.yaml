@@ -2,42 +2,42 @@ defaults:
   - _self_
   - model: parseq
   - charset: 94_full
-  - dataset: real
+  - dataset: 
 
 model:
   _convert_: all
-  img_size: [ 32, 128 ]  # [ height, width ]
-  max_label_length: 25
+  img_size: [ 64, 256 ]  # [ height, width ]
+  max_label_length: 40
   # The ordering in charset_train matters. It determines the token IDs assigned to each character.
-  charset_train: ???
+  charset_train: " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789áàảãạâấầẩẫậăắằẳẵặóòỏõọôốồổỗộơớờởỡợéèẻẽẹêếềểễệúùủũụưứừửữựíìỉĩịýỳỷỹỵđÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÉÈẺẼẸÊẾỀỂỄỆÚÙỦŨỤƯỨỪỬỮỰÍÌỈĨỊÝỲỶỸỴĐ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
   # For charset_test, ordering doesn't matter.
-  charset_test: "0123456789abcdefghijklmnopqrstuvwxyz"
-  batch_size: 384
+  charset_test: " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789áàảãạâấầẩẫậăắằẳẵặóòỏõọôốồổỗộơớờởỡợéèẻẽẹêếềểễệúùủũụưứừửữựíìỉĩịýỳỷỹỵđÁÀẢÃẠÂẤẦẨẪẬĂẮẰẲẴẶÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÉÈẺẼẸÊẾỀỂỄỆÚÙỦŨỤƯỨỪỬỮỰÍÌỈĨỊÝỲỶỸỴĐ!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+  batch_size: 32
   weight_decay: 0.0
   warmup_pct: 0.075  # equivalent to 1.5 epochs of warm up
 
 data:
   _target_: strhub.data.module.SceneTextDataModule
   root_dir: data
-  train_dir: ???
+  train_dir: /home/bap/BAP/ocr/TextRecognition/parseq/data/train
   batch_size: ${model.batch_size}
   img_size: ${model.img_size}
   charset_train: ${model.charset_train}
   charset_test: ${model.charset_test}
   max_label_length: ${model.max_label_length}
-  remove_whitespace: true
-  normalize_unicode: true
+  remove_whitespace: false
+  normalize_unicode: false
   augment: true
-  num_workers: 2
+  num_workers: 12
 
 trainer:
   _target_: pytorch_lightning.Trainer
   _convert_: all
-  val_check_interval: 1000
+  val_check_interval: 20000
   #max_steps: 169680  # 20 epochs x 8484 steps (for batch size = 384, real data)
-  max_epochs: 20
-  gradient_clip_val: 20
-  gpus: 2
+  max_epochs: 100
+  gradient_clip_val: 50
+  gpus: 1
 
 ckpt_path: null
 pretrained: null
